@@ -19,7 +19,6 @@ struct Segment{
 };
 typedef struct Segment segment;
 
-
 void showArgumentsFromTerminal(int argc, char const *argv[]){
    /*
    1.here argc is the number of array argv;
