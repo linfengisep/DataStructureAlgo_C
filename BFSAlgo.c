@@ -20,39 +20,44 @@ struct Vertex{
 
 //need a queue;
 int front=0,rear=0;
-int itemIndex=0;
+int endItemPos=-1;
 int queue[max];
 struct Vertex* listVertex[max];
 int adjMatrix[max][max];
+int nbrVertex=0;
 
+void testMatrix(){
+   for(int i=0;i<max;i++){
+      for(int j=0;j<max;j++){
+         printf("(%d,%d):%d)\n",i,j,adjMatrix[i][j]);
+      }
+   }
+}
 int peek(){
    return queue[front];
 }
 bool isEmpty(){
-   return itemIndex==0;
+   return endItemPos==-1;
 }
 bool isFull(){
-   return itemIndex == max;
+   return endItemPos == max;
 }
-int insert(int data){
+void push(int data){
    if(isFull()){
-      printf("the queue is full, can not insert %d\n",data);
-      return 0;
+      printf("the queue is full, can not push %d\n",data);
    }else{
       queue[rear++]=data;
-      itemIndex++;
-      return 1;
+      endItemPos++;
+      //int po=rear-1;printf("queue[%d]:%d, data=%d\n",po,queue[po],data);
    }
 }
 
-int removeData(){
-   if(isEmpty()){
-      printf("the queue is empty\n");
-      return 0;
-   }else{
+int pop(){
+      endItemPos--;
       return queue[front++];
-      itemIndex--;
-   }
+}
+void displayVertex(int index){
+   printf("%c ",listVertex[index]->label);
 }
 
 void addVertex(char label){
@@ -62,22 +67,38 @@ void addVertex(char label){
    vertex->label = label;
    vertex->isVisited = false;
    //do i need put this vertex in the listVertex???? yes
-   //printf("vertex label %c is visited %d, and itemIndex:%d, vertexIndex:%d\n",vertex->label,vertex->isVisited,itemIndex,vertexIndex);
-   listVertex[itemIndex++]=vertex;
+   //printf("vertex label %c is visited %d, and endItemPos:%d, vertexIndex:%d\n",vertex->label,vertex->isVisited,endItemPos,vertexIndex);
+   listVertex[nbrVertex++]=vertex;
 }
 
-int getNotVisitedVertex(){
-   //pop the item out of the list vertex;
-   if(isEmpty()){
-      printf("the queue is empty,so all vertex are visited\n");
-      return -1;
-   }else{
-      return removeData();
+int pushAllAdjToQueue(int vertexIndex){
+   for(int i=0;i<nbrVertex;i++){
+      if(adjMatrix[vertexIndex][i]==1 && listVertex[i]->isVisited == false){
+         return i;
+      }
    }
+   return -1;
 }
 
-int BFSSearch(){
-   //find the one and pop
+void BFSSearch(){
+   int unvisitedVertexIndex;
+   listVertex[0]->isVisited = true;
+
+   push(0);
+   displayVertex(0);
+
+   while(!isEmpty()){
+      int temp = pop();
+      while((unvisitedVertexIndex = pushAllAdjToQueue(temp))!=-1){
+         listVertex[unvisitedVertexIndex]->isVisited = true;
+         displayVertex(unvisitedVertexIndex);
+         push(unvisitedVertexIndex);
+      }
+   }
+
+   for (int i=0;i < nbrVertex ;i++) {
+      listVertex[i]->isVisited = false;
+   }
 
 }
 void addEdge(int start,int end){
@@ -98,22 +119,29 @@ void loadingData(){
    addEdge(2,4);
    addEdge(3,4);
 }
-void display(){
-   for(int i=0;i<max;i++){
-      for(int j=0;j<max;j++){
-         printf("[%d][%d]:%d\n",i,j,adjMatrix[i][j]);
-      }
+/*
+void testQueue(){
+   push(2);
+   push(5);
+   push(9);
+   push(1);
+   push(24);
+   push(87);
+   push(32);
+   printf("peek the queue:%d\n",peek());
+
+   for(int i=0;i<6;i++){
+      pop();
    }
 }
-
+*/
 int main(int argc, char const *argv[]) {
    for(int i=0;i<max;i++){
       for(int j=0;j<max;j++){
          adjMatrix[i][j]=0;
       }
    }
-
    loadingData();
-   display();
+   BFSSearch();
    return 0;
 }
